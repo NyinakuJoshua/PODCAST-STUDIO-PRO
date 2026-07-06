@@ -1,0 +1,10 @@
+{
+  "name": "Podcast Studio Pro",
+  "description": "An interactive, pro-grade podcast recording, multi-track editing, effects processing, mixing, and AI-powered production suite.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
