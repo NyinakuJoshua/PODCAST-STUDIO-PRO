@@ -55,21 +55,26 @@ export default function App() {
   const projectFileInputRef = useRef<HTMLInputElement>(null);
   const [fileMenuOpen, setFileMenuOpen] = useState(false);
   const fileMenuRef = useRef<HTMLDivElement>(null);
+  const [workspaceMenuOpen, setWorkspaceMenuOpen] = useState(false);
+  const workspaceMenuRef = useRef<HTMLDivElement>(null);
 
-  // Close file menu when clicking outside
+  // Close file menu and workspace menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (fileMenuRef.current && !fileMenuRef.current.contains(e.target as Node)) {
         setFileMenuOpen(false);
       }
+      if (workspaceMenuRef.current && !workspaceMenuRef.current.contains(e.target as Node)) {
+        setWorkspaceMenuOpen(false);
+      }
     };
-    if (fileMenuOpen) {
+    if (fileMenuOpen || workspaceMenuOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     }
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [fileMenuOpen]);
+  }, [fileMenuOpen, workspaceMenuOpen]);
 
   // Load saved project from local storage on mount
   useEffect(() => {
@@ -1361,15 +1366,8 @@ export default function App() {
             </div>
           </div>
 
-          {/* Project Save / Load Button Group */}
+          {/* Project File Actions */}
           <div className="flex items-center gap-1.5 border-l border-slate-200 dark:border-white/10 pl-3 ml-1">
-            <button
-              onClick={handleSaveProjectLocal}
-              className="px-2.5 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-lg text-xs font-bold flex items-center gap-1 transition cursor-pointer"
-              title="Save project state to browser localStorage"
-            >
-              <Save className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Save</span>
-            </button>
 
             {/* Audacity-Style Dropdown File Menu */}
             <div className="relative" ref={fileMenuRef}>
@@ -1649,51 +1647,104 @@ export default function App() {
           </div>
         </div>
 
-        {/* Center: Segmented Workspace Switcher */}
-        <div className="flex items-center bg-slate-200/60 dark:bg-[#14171c] p-1 rounded-xl border border-slate-300/60 dark:border-white/[0.06] w-full lg:w-auto overflow-x-auto shrink-0 select-none">
-          <button
-            onClick={() => setActiveWorkspace('arrange')}
-            className={`flex-1 lg:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer ${
-              activeWorkspace === 'arrange'
-                ? "bg-emerald-500 text-slate-950 shadow-md font-extrabold"
-                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
-            }`}
-          >
-            <Layers className="w-3.5 h-3.5" /> Arrange & Mix
-          </button>
-          <button
-            onClick={() => setActiveWorkspace('ai')}
-            className={`flex-1 lg:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer ${
-              activeWorkspace === 'ai'
-                ? "bg-emerald-500 text-slate-950 shadow-md font-extrabold"
-                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
-            }`}
-          >
-            <Sparkles className="w-3.5 h-3.5" /> AI Production
-          </button>
-          <button
-            onClick={() => {
-              setActiveWorkspace('console');
-              setActiveConsoleTab('mixer');
-            }}
-            className={`flex-1 lg:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer ${
-              activeWorkspace === 'console'
-                ? "bg-emerald-500 text-slate-950 shadow-md font-extrabold"
-                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
-            }`}
-          >
-            <Sliders className="w-3.5 h-3.5" /> Studio Console
-          </button>
-          <button
-            onClick={() => setActiveWorkspace('publish')}
-            className={`flex-1 lg:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer ${
-              activeWorkspace === 'publish'
-                ? "bg-emerald-500 text-slate-950 shadow-md font-extrabold"
-                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
-            }`}
-          >
-            <Radio className="w-3.5 h-3.5" /> Publish & Distribute
-          </button>
+        {/* Center: Dropdown Workspace Switcher under Arrange & Mix */}
+        <div className="flex items-center select-none" ref={workspaceMenuRef}>
+          <div className="relative">
+            <button
+              onClick={() => setWorkspaceMenuOpen(!workspaceMenuOpen)}
+              className="px-4 py-2 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 border border-slate-250 dark:border-white/10 rounded-xl text-xs font-bold flex items-center gap-2 transition cursor-pointer shadow-sm"
+              title="Select production workspace"
+            >
+              {activeWorkspace === 'arrange' && (
+                <span className="flex items-center gap-1.5 text-emerald-650 dark:text-emerald-400 font-extrabold">
+                  <Layers className="w-4 h-4" /> Arrange & Mix
+                </span>
+              )}
+              {activeWorkspace === 'ai' && (
+                <span className="flex items-center gap-1.5 text-indigo-600 dark:text-indigo-400 font-extrabold">
+                  <Sparkles className="w-4 h-4" /> AI Production
+                </span>
+              )}
+              {activeWorkspace === 'console' && (
+                <span className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400 font-extrabold">
+                  <Sliders className="w-4 h-4" /> Studio Console
+                </span>
+              )}
+              {activeWorkspace === 'publish' && (
+                <span className="flex items-center gap-1.5 text-rose-600 dark:text-rose-450 font-extrabold">
+                  <Radio className="w-4 h-4" /> Publish Link
+                </span>
+              )}
+              <ChevronDown className="w-3.5 h-3.5 ml-1 text-slate-400" />
+            </button>
+
+            {workspaceMenuOpen && (
+              <div className="absolute left-1/2 -translate-x-1/2 mt-1.5 w-64 bg-slate-50 dark:bg-[#14171c] border border-slate-300 dark:border-white/10 rounded-xl shadow-2xl py-1.5 z-50 text-xs font-semibold text-slate-800 dark:text-slate-200 select-none">
+                
+                <div className="px-3 py-1 text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 font-sans tracking-wider border-b border-slate-200 dark:border-white/5 pb-1.5 mb-1">
+                  Workspace Views
+                </div>
+
+                {/* Arrange & Mix */}
+                <button
+                  onClick={() => {
+                    setActiveWorkspace('arrange');
+                    setWorkspaceMenuOpen(false);
+                  }}
+                  className={`w-full px-3 py-2 hover:bg-emerald-500 hover:text-white dark:hover:text-slate-950 flex items-center gap-2.5 cursor-pointer text-left transition-colors ${
+                    activeWorkspace === 'arrange' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-extrabold' : ''
+                  }`}
+                >
+                  <Layers className="w-4 h-4 text-emerald-500" />
+                  <span>Arrange & Mix</span>
+                </button>
+
+                {/* AI Production */}
+                <button
+                  onClick={() => {
+                    setActiveWorkspace('ai');
+                    setWorkspaceMenuOpen(false);
+                  }}
+                  className={`w-full px-3 py-2 hover:bg-emerald-500 hover:text-white dark:hover:text-slate-950 flex items-center gap-2.5 cursor-pointer text-left transition-colors ${
+                    activeWorkspace === 'ai' ? 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-extrabold' : ''
+                  }`}
+                >
+                  <Sparkles className="w-4 h-4 text-indigo-500" />
+                  <span>AI Production</span>
+                </button>
+
+                {/* Studio Console */}
+                <button
+                  onClick={() => {
+                    setActiveWorkspace('console');
+                    setActiveConsoleTab('mixer');
+                    setWorkspaceMenuOpen(false);
+                  }}
+                  className={`w-full px-3 py-2 hover:bg-emerald-500 hover:text-white dark:hover:text-slate-950 flex items-center gap-2.5 cursor-pointer text-left transition-colors ${
+                    activeWorkspace === 'console' ? 'bg-blue-550/10 text-blue-600 dark:text-blue-400 font-extrabold' : ''
+                  }`}
+                >
+                  <Sliders className="w-4 h-4 text-blue-500" />
+                  <span>Studio Console</span>
+                </button>
+
+                {/* Publish Link */}
+                <button
+                  onClick={() => {
+                    setActiveWorkspace('publish');
+                    setWorkspaceMenuOpen(false);
+                  }}
+                  className={`w-full px-3 py-2 hover:bg-emerald-500 hover:text-white dark:hover:text-slate-950 flex items-center gap-2.5 cursor-pointer text-left transition-colors ${
+                    activeWorkspace === 'publish' ? 'bg-rose-500/10 text-rose-650 dark:text-rose-455 font-extrabold' : ''
+                  }`}
+                >
+                  <Radio className="w-4 h-4 text-rose-500" />
+                  <span>Publish Link</span>
+                </button>
+
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Right Side: Playback controls + Theme Toggle */}
